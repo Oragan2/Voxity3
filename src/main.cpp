@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include "physics/particule.hpp"
+#include "graphics/render.hpp"
 
 int main() {
-	std::cout << "Hello\n";
-	return 0;
+	return initWindow();
 }

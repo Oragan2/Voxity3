@@ -1,6 +1,5 @@
 #include "particule.hpp"
 #include "heat.hpp"
-#include <cstdint>
 #include <vector>
 #include <utility>
 
@@ -26,6 +25,11 @@ inline std::size_t getIdx(std::size_t x, std::size_t y, std::size_t z) {
     return z*(X*Y)+y*X+x;
 }
 
+inline float safeT(std::size_t x, std::size_t y, std::size_t z, float fallback) {
+    float val = oldT[getIdx(x, y, z)];
+    return (val < 0.0f) ? fallback : val;  // -1 sentinel check
+}
+
 HeatSource::HeatSource(std::size_t x, std::size_t y, std::size_t z, float Q) : x{x}, y{y}, z{z}, Q{Q} {}
 
 void initTemp(const std::size_t x, const std::size_t y, const std::size_t z) {
@@ -42,20 +46,16 @@ void endTemp() {
 }
 
 float Laplacian(std::size_t x, std::size_t y, std::size_t z) {
-    float dx = 1.0f, dy = 1.0f, dz = 1.0f;
-    float d2T_dx2=.0f, d2T_dy2=.0f, d2T_dz2=0.0f;
-    std::size_t ax, bx, ay, by, az, bz;
-    ax = (x+1 < X) ? x+1 : x;
-    bx = (x > 0) ? x-1 : x;
-    ay = (y+1 < Y) ? y+1 : y;
-    by = (y > 0) ? y-1 : y;
-    az = (z+1 < Z) ? z+1 : z;
-    bz = (z > 0) ? z-1 : z;
-    d2T_dx2 = (oldT[getIdx(ax,y,z)] - 2*oldT[getIdx(x,y,z)] + oldT[getIdx(bx,y,z)]) / (dx*dx);
-    d2T_dy2 = (oldT[getIdx(x,ay,z)] - 2*oldT[getIdx(x,y,z)] + oldT[getIdx(x,by,z)]) / (dy*dy);
-    d2T_dz2 = (oldT[getIdx(x,y,az)] - 2*oldT[getIdx(x,y,z)] + oldT[getIdx(x,y,bz)]) / (dz*dz);
+    float Tc = oldT[getIdx(x,y,z)];
+    float xp = safeT(x+1 < X ? x+1 : x,  y, z, Tc);
+    float xn = safeT(x > 0  ? x-1 : x,   y, z, Tc);
+    float yp = safeT(x, y+1 < Y ? y+1 : y, z, Tc);
+    float yn = safeT(x, y > 0  ? y-1 : y,  z, Tc);
+    float zp = safeT(x, y, z+1 < Z ? z+1 : z, Tc);
+    float zn = safeT(x, y, z > 0  ? z-1 : z,  Tc);
 
-    return d2T_dx2+d2T_dy2+d2T_dz2;
+    return (xp - 2*Tc + xn) + (yp - 2*Tc + yn) + (zp - 2*Tc + zn);
+    // dx=dy=dz=1 so division is ommited
 }
 
 float fouriersLaw(float k, float p, float c) {

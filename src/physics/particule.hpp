@@ -29,13 +29,14 @@ constexpr MaterialProperties MATERIAL[] = {
 };
 
 struct ParticlePool {
-    std::vector<MaterialType> type;
-    std::vector<uint8_t> density; //relative 
-    
     std::size_t X;
     std::size_t Y;
     std::size_t Z;
-
+    
+    std::vector<MaterialType> type;
+    std::vector<uint8_t> density; //relative
+    
+    ParticlePool(std::size_t x, std::size_t y, std::size_t z);
     void change(std::size_t x,std::size_t y,std::size_t z, MaterialType t, uint8_t den);
     const MaterialProperties& properties(std::size_t i) const;
 };

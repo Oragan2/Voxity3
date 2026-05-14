@@ -19,14 +19,19 @@ target_compile_options(VoxitryOptions INTERFACE
 # 1. Core Physics Library
 add_library(VoxitryCore
     src/physics/particule.cpp
+    src/physics/heat.cpp
 )
 
 target_include_directories(VoxitryCore
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/physics
 )
 
 # 2. Main executable
 add_executable(Voxitry src/main.cpp)
+
+target_include_directories(Voxitry
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 target_link_libraries(VoxitryCore PRIVATE VoxitryOptions)
 target_link_libraries(Voxitry PRIVATE VoxitryOptions)

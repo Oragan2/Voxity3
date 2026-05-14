@@ -16,3 +16,5 @@ void ParticlePool::change(std::size_t x,std::size_t y,std::size_t z, MaterialTyp
 const MaterialProperties& ParticlePool::properties(std::size_t i) const {
     return MATERIAL[static_cast<uint8_t>(type[i])];
 }
+
+ParticlePool::ParticlePool(std::size_t x, std::size_t y, std::size_t z) : X{x}, Y{y}, Z{z}, type(z*y*x), density(z*y*x) {}
